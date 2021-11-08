@@ -68,6 +68,49 @@ public class ReservationController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+	
+    @DeleteMapping("/{number}")
+    public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
+   	 //System.out.print("inside delete");
+   	HashMap<String, Object> map = new HashMap<>();
+   	HashMap<String, Object> mapnew = new HashMap<>();
+   	  Optional<Reservation> reservation =
+   			   reservationRepository
+   	           .findById(number);  		
+   		if(!reservation.isPresent())
+   		{   			
+   	   	    mapnew.clear();
+   	   	    map.clear();
+   		    map.put("code", "404");
+   		    map.put("msg", "reservation with number "+number+" does not exist");
+		    mapnew.put("Bad Request", map);
+   			return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
+
+   		}
+   		else
+   		{   		
+   			Optional<Reservation> reservationData = reservationRepository.findById(number);
+   			if(reservationData.isPresent())
+   			{
+   				Reservation currentReservation = reservationData.get();
+   				List<Flight> currentReservationFlights = currentReservation.getFlights();
+   				for(Flight fl : currentReservationFlights) {
+   					fl.setSeatsLeft(fl.getSeatsLeft()+1);
+
+	                }
+   			}
+   			reservationRepository.deleteById(number);
+
+   			return new ResponseEntity<>(reservation, HttpStatus.OK);
+   			//return new ResponseEntity<>((generateErrorMessage("Response", "200", "Passenger with id " + number + " is deleted successfully")),HttpStatus.OK);
+   		}
+   		
+   	
+   }
+    
+
+    
+
 
     @PostMapping("")
     public ResponseEntity<Reservation> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
