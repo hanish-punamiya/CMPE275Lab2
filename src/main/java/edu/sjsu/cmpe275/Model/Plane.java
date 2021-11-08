@@ -23,8 +23,7 @@ public class Plane {
     @Column(name="yearofmanufacturer")
     private int yearOfManufacture;
 
-    public Plane(int planeId, String model, int capacity, String manufacturer, int yearOfManufacture) {
-        this.planeId = planeId;
+    public Plane(String model, int capacity, String manufacturer, int yearOfManufacture) {
         this.model = model;
         this.capacity = capacity;
         this.manufacturer = manufacturer;
