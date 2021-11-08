@@ -1,5 +1,7 @@
 package edu.sjsu.cmpe275.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +48,29 @@ public class Flight {
     private Plane plane;
 
     @ManyToMany(mappedBy = "flights", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"age","gender","phone","reservations","flights"})
     private List<Passenger> passengers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "flights", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"passenger","price","flights"})
+    private List<Reservation> reservations;
+
+    public Flight(long flightNumber, int price, String origin, String destination, Date departureTime, Date arrivalTime, int seatsLeft, String description, Plane plane, List<Passenger> passengers, List<Reservation> reservations) {
+        this.flightNumber = flightNumber;
+        this.price = price;
+        this.origin = origin;
+        this.destination = destination;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.seatsLeft = seatsLeft;
+        this.description = description;
+        this.plane = plane;
+        this.passengers = passengers;
+        this.reservations = reservations;
+    }
+
+    public Flight() {
+    }
 
     public long getFlightNumber() {
         return flightNumber;
@@ -127,8 +151,12 @@ public class Flight {
     public void setPassengers(List<Passenger> passengers) {
         this.passengers = passengers;
     }
-    //    @Column(name="price")
-//    private List<Passenger> passengers;
 
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
 
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
 }

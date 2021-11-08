@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "reservation")
@@ -18,7 +19,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "passengerid", referencedColumnName = "id")
-    @JsonIgnoreProperties({"age","gender","phone","reservations"})
+    @JsonIgnoreProperties({"age","gender","phone","reservations","flights"})
     private Passenger passenger;
 
     @Column(name = "origin")
@@ -30,12 +31,22 @@ public class Reservation {
     @Column(name = "price")
     private int price;
 
-    public Reservation(long reservationNumber, Passenger passenger, String origin, String destination, int price) {
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name="reservation_flight",
+            joinColumns = {@JoinColumn(name = "reservation_id", referencedColumnName = "reservationnumber", nullable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flightnumber", nullable = false)}
+    )
+    @JsonIgnoreProperties({"price","seatsLeft","description","plane","passengers"})
+    private List<Flight> flights;
+
+    public Reservation(long reservationNumber, Passenger passenger, String origin, String destination, int price, List<Flight> flights) {
         this.reservationNumber = reservationNumber;
         this.passenger = passenger;
         this.origin = origin;
         this.destination = destination;
         this.price = price;
+        this.flights = flights;
     }
 
     public Reservation() {
@@ -80,5 +91,13 @@ public class Reservation {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public List<Flight> getFlights() {
+        return flights;
+    }
+
+    public void setFlights(List<Flight> flights) {
+        this.flights = flights;
     }
 }

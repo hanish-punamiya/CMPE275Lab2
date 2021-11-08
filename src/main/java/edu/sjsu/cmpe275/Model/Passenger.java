@@ -34,7 +34,7 @@ public class Passenger {
     private String phone;
 
     @OneToMany(mappedBy = "passenger", fetch = FetchType.EAGER)
-    @JsonIgnoreProperties({"price","passenger"})
+    @JsonIgnoreProperties({"passenger","price","flights"})
     private List<Reservation> reservations;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -43,14 +43,25 @@ public class Passenger {
             joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id", nullable = false)},
             inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flightnumber", nullable = false)}
     )
+    @JsonIgnoreProperties({"price","seatsLeft","description","plane","passengers"})
     private List<Flight> flights = new ArrayList<>();
 
-    public Passenger(String firstName, String lastName, int age, String gender, String phone) {
+    public Passenger(long id,
+                     String firstName,
+                     String lastName,
+                     int age,
+                     String gender,
+                     String phone,
+                     List<Reservation> reservations,
+                     List<Flight> flights) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.gender = gender;
         this.phone = phone;
+        this.reservations = reservations;
+        this.flights = flights;
     }
 
     public Passenger() {
