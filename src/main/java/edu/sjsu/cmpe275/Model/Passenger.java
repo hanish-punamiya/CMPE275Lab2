@@ -37,7 +37,6 @@ public class Passenger {
     @JsonIgnoreProperties({"passenger","price","flights"})
     private List<Reservation> reservations;
 
-    //saketh commit.
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name="flight_passengers",
