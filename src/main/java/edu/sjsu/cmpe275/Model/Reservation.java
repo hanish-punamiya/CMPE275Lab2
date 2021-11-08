@@ -37,7 +37,7 @@ public class Reservation {
             joinColumns = {@JoinColumn(name = "reservation_id", referencedColumnName = "reservationnumber", nullable = false)},
             inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flightnumber", nullable = false)}
     )
-    @JsonIgnoreProperties({"price","seatsLeft","description","plane","passengers"})
+    @JsonIgnoreProperties({"price","seatsLeft","description","plane","passengers","reservations"})
     private List<Flight> flights;
 
     public Reservation(long reservationNumber, Passenger passenger, String origin, String destination, int price, List<Flight> flights) {

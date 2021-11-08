@@ -26,6 +26,9 @@ public class ReservationController {
     @Autowired
     FlightRepository flightRepository;
 
+    @Autowired
+    PassengerRepository passengerRepository;
+
     @GetMapping("/")
     public ResponseEntity<List<Reservation>> getAllReservations() {
         try {
@@ -66,41 +69,123 @@ public class ReservationController {
         }
     }
 
-    @PostMapping("/")
-    public ResponseEntity<Reservation> makeReservation(@PathVariable("passengerId") Long passengerId, @PathVariable("flightNumbers") List<String> flightNumbers) {
+    @PostMapping("")
+    public ResponseEntity<Reservation> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
 
-        return null;
+        try {
 
-        //        try {
-//
-//            List<Flight> flights = new ArrayList<Flight>();
-//            flightRepository.findAll().forEach(flights::add);
-//
-//            Reservation reservation = new Reservation();
-//
-//            if(flights.isEmpty()){
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
-//
-//            flights.sort(Comparator.comparing(Flight::getDepartureTime));
-//
-//            for(int i =0;i<flights.size();i++){
-//
-//            }
-//
-//            Optional<Reservation> reservationData = reservationRepository.findById(id);
-//
-//            if (reservationData.isPresent()) {
-//                return new ResponseEntity<>(reservationData.get(), HttpStatus.OK);
-//            }
-//            else {
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
-//            return new ResponseEntity<>(reservation, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-        //hanish punamiya
+            List<Flight> flights = new ArrayList<Flight>();
+            flightRepository.findAllById(flightNumbers).forEach(flights::add);
+
+            if (!checkSeatsLeft(flights)) {
+//                return error
+                return null;
+            }
+
+            if (!checkOverlap(flights)) {
+                //return error
+                return null;
+            }
+            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);
+            Passenger passenger = PassengerData.get();
+            if (PassengerData.isEmpty()) {
+                //return error
+                return null;
+            }
+
+            if (!checkReservationsOverlap(passenger, flights)) {
+//                return error
+                return null;
+            }
+
+            Reservation reservation = createReservation(passenger, flights);
+
+
+            for (Flight flight :
+                    flights) {
+                passenger.getFlights().add(flight);
+                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
+                flightRepository.save(flight);
+            }
+
+            passengerRepository.save(passenger);
+            return new ResponseEntity<>(reservationRepository.save(reservation), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public static boolean checkOverlap(List<Flight> flights) {
+        try {
+            Date arrivalTime = new Date();
+            arrivalTime.setTime(0);
+            Date departureTime = new Date();
+            flights.sort(Comparator.comparing(Flight::getDepartureTime));
+            for (Flight flight :
+                    flights) {
+                departureTime = flight.getDepartureTime();
+
+                if (arrivalTime.after(departureTime))
+                    return false;
+
+                arrivalTime = flight.getArrivalTime();
+            }
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean checkSeatsLeft(List<Flight> flights) {
+        try {
+            for (Flight flight :
+                    flights) {
+                if (flight.getSeatsLeft() <= 0)
+                    return false;
+            }
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkReservationsOverlap(Passenger passenger, List<Flight> flights) {
+        try {
+//            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);
+            List<Long> flightIds = new ArrayList<>();
+            passenger.getFlights().forEach(flight -> flightIds.add(flight.getFlightNumber()));
+            List<Flight> newList = new ArrayList<>();
+            flights.forEach(newList::add);
+            flightRepository.findAllById(flightIds).forEach(newList::add);
+            if (!checkOverlap(newList))
+                return false;
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
+    private Reservation createReservation(Passenger passenger, List<Flight> flights) {
+        try {
+            Reservation reservation = new Reservation();
+
+            reservation.setPrice(0);
+            flights.sort(Comparator.comparing(Flight::getDepartureTime));
+            for (Flight flight :
+                    flights) {
+                reservation.setPrice(reservation.getPrice() + flight.getPrice());
+            }
+            reservation.setPassenger(passenger);
+            reservation.setFlights(flights);
+            reservation.setOrigin(flights.get(0).getOrigin());
+            reservation.setDestination(flights.get(flights.size() - 1).getDestination());
+            return reservation;
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
 }
+
+
