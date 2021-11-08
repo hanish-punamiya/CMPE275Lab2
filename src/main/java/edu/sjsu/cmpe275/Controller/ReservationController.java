@@ -138,8 +138,7 @@ public class ReservationController {
             }
 
             Reservation reservation = createReservation(passenger, flights);
-
-
+            
             for (Flight flight :
                     flights) {
                 passenger.getFlights().add(flight);
@@ -155,6 +154,7 @@ public class ReservationController {
         }
     }
 
+    //checks for the flights passed in the parameter
     public static boolean checkOverlap(List<Flight> flights) {
         try {
             Date arrivalTime = new Date();
@@ -176,6 +176,7 @@ public class ReservationController {
         return true;
     }
 
+    //checks if there are seats left on the flight
     public static boolean checkSeatsLeft(List<Flight> flights) {
         try {
             for (Flight flight :
@@ -189,6 +190,7 @@ public class ReservationController {
         return true;
     }
 
+    //checks for all the flights the passenger is on along with the flights passed in the parameter
     public boolean checkReservationsOverlap(Passenger passenger, List<Flight> flights) {
         try {
 //            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);

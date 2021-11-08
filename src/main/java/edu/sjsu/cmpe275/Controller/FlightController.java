@@ -146,32 +146,4 @@ public class FlightController {
         }
      }
 
-    @GetMapping("/flights")
-    public ResponseEntity<List<Flight>> getAllPlanes() {
-        try {
-            List<Flight> flights = new ArrayList<Flight>();
-
-//            Passenger passenger = new Passenger();
-//            Optional<Passenger> PassengerData = passengerRepository.findById(1L);
-//            passenger = PassengerData.get();
-
-            flightRepository.findAll().forEach(flights::add);
-            boolean check = ReservationController.checkOverlap(flights);
-//            flights.sort(Comparator.comparing(Flight::getDepartureTime));
-
-//            flights.get(1).getPassengers().add(passenger);
-//            flights.get(1).setOrigin("MAA");
-//            flightRepository.save(flights.get(1));
-//            passenger.getFlights().add(flights.get(1));
-//            passengerRepository.save(passenger);
-
-            if (flights.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(flights, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }
