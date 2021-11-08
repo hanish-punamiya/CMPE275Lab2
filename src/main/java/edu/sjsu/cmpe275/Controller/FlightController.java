@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Date;
+import java.util.HashMap;
 import java.text.SimpleDateFormat;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -41,6 +42,31 @@ public class FlightController {
 
     @Autowired
     PlaneRepository planeRepository;
+    
+    
+    
+    @GetMapping("/{flightNumber}")
+    public ResponseEntity<?> getFlight(@PathVariable Long flightNumber) {
+    	HashMap<String, Object> map = new HashMap<>();
+       	HashMap<String, Object> mapnew = new HashMap<>();
+    	
+    	Optional<Flight> flight = flightRepository.findById(flightNumber);
+    	if(flight.isEmpty())
+    	{
+    		mapnew.clear();
+   	   	    map.clear();
+   		    map.put("code", "404");
+   		    map.put("msg", "Sorry, the requested flight with number "+flightNumber+" does not exist");
+		    mapnew.put("Bad Request", map);
+   			return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
+    		// not found
+    	}
+    	else
+    	{
+    		return new ResponseEntity<>(flight, HttpStatus.OK);
+    	}
+    	
+    }
 
     @PostMapping(value="/{flightNumber}")
     public ResponseEntity<Flight> createUpdateFlight(
