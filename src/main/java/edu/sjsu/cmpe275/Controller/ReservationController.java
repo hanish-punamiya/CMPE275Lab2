@@ -107,10 +107,6 @@ public class ReservationController {
    		
    	
    }
-    
-
-    
-
 
     @PostMapping("")
     public ResponseEntity<Reservation> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
