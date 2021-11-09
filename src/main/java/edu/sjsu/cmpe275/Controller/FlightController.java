@@ -45,7 +45,7 @@ public class FlightController {
     
     
     
-    @GetMapping("/{flightNumber}")
+    @GetMapping(value = "/{flightNumber}", produces = {"application/json", "application/xml"})
     public ResponseEntity<?> getFlight(@PathVariable Long flightNumber) {
     	HashMap<String, Object> map = new HashMap<>();
        	HashMap<String, Object> mapnew = new HashMap<>();
