@@ -62,7 +62,7 @@ public class ReservationController {
             if (reservationData.isPresent())
                 return new ResponseEntity<>(reservationData.get(), HttpStatus.OK);
             else
-                return new ResponseEntity<Object>(new Response("404", "Passenger not found"), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<Object>(new Response("404", "Reservation with number " + id + " not found"), HttpStatus.NOT_FOUND);
         } catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

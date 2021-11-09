@@ -2,18 +2,18 @@ package edu.sjsu.cmpe275.Helper.Error;
 
 public class Response {
 
-    private Error Hanish;
+    private Error error;
 
     public Response(String code, String msg) {
         Error Error = new Error(code,msg);
-        this.Hanish = Error;
+        this.error = Error;
     }
 
-    public Error getHanish() {
-        return Hanish;
+    public Error getError() {
+        return error;
     }
 
-    public void setHanish(Error Error) {
-        this.Hanish = Error;
+    public void setError(Error Error) {
+        this.error = Error;
     }
 }
