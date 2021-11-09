@@ -1,5 +1,6 @@
 package edu.sjsu.cmpe275.Controller;
 
+import edu.sjsu.cmpe275.Helper.Error.Response;
 import edu.sjsu.cmpe275.Model.Passenger;
 import edu.sjsu.cmpe275.Repository.PassengerRepository;
 import edu.sjsu.cmpe275.Service.PassengerServiceImpl;
@@ -38,25 +39,22 @@ public class PassengerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Passenger> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
-        Optional<Passenger> PassengerData = passengerRepository.findById(id);
-
-        if (PassengerData.isPresent()) {
-            Passenger _passenger = PassengerData.get();
-            _passenger.setFirstName(firstName);
-            _passenger.setLastName(lastName);
-            _passenger.setAge(age);
-            _passenger.setGender(gender);
-            _passenger.setPhone(phone);
-            return new ResponseEntity<>(passengerRepository.save(_passenger), HttpStatus.OK);
-        } else {
-            Map<String, String> errorResponse = new HashMap<>();
-            Map<String, Map> error = new HashMap<>();
-            errorResponse.put("code", "404");
-            errorResponse.put("msg", "User not found");
-            error.put("BadRequest",errorResponse);
-//            return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
+        try{
+            Optional<Passenger> PassengerData = passengerRepository.findById(id);
+            if (PassengerData.isPresent()) {
+                Passenger _passenger = PassengerData.get();
+                _passenger.setFirstName(firstName);
+                _passenger.setLastName(lastName);
+                _passenger.setAge(age);
+                _passenger.setGender(gender);
+                _passenger.setPhone(phone);
+                return new ResponseEntity<Object>(passengerRepository.save(_passenger), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<Object>(new Response("404","Passenger not found"),HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception exception){
+            return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

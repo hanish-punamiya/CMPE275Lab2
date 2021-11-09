@@ -3,10 +3,12 @@ package edu.sjsu.cmpe275.Model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@XmlRootElement
 @Entity
 @Table(name = "flight")
 public class Flight {
