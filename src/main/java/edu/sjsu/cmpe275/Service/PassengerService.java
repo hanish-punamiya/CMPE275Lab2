@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Service
 public interface PassengerService {
-    public boolean createPassengerService(String fn,String ln,int age,String gen,String ph);
+    public Passenger createPassengerService(String fn,String ln,int age,String gen,String ph);
 
     public Optional<Passenger> getPassengerService(long id);
     public boolean deletePassengerService(long id);

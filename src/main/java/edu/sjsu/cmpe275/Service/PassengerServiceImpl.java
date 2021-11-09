@@ -25,7 +25,7 @@ public class PassengerServiceImpl implements PassengerService {
     FlightRepository flightRepository;
 
     @Override
-    public boolean createPassengerService(String fn, String ln, int age, String gen, String ph) {
+    public Passenger createPassengerService(String fn, String ln, int age, String gen, String ph) {
         Passenger passenger = new Passenger();
         System.out.println("passenger by phone = " +  passengerRepository.findByPhone(ph));
         if(passengerRepository.findByPhone(ph)==null) {
@@ -34,16 +34,15 @@ public class PassengerServiceImpl implements PassengerService {
             passenger.setAge(age);
             passenger.setGender(gen);
             passenger.setPhone(ph);
-            passengerRepository.save(passenger);
-            return true;
+            return passengerRepository.save(passenger);
+//            return passenger;
         }
-        return false;
+        return null;
     }
 
     @Override
     public Optional<Passenger> getPassengerService(long id) {
         return passengerRepository.findById(id);
-
     }
 
     @Override
@@ -61,7 +60,8 @@ public class PassengerServiceImpl implements PassengerService {
             flightRepository.save(flight);
         }
         System.out.println("flight ids = " + flights_of_passenger);
-
+        passenger.setFlights(new ArrayList<>());
+        passengerRepository.save(passenger);
         //delete all the reservations made by the passenger
 //        deleteReservationsOfPassengerService(id);
         //delete the passenger
