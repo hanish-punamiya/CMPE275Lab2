@@ -12,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "passenger")
+@JsonIgnoreProperties({"flights"})
 public class Passenger {
 
     @Id

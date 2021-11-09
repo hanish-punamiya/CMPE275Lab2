@@ -1,5 +1,6 @@
 package edu.sjsu.cmpe275.Service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import edu.sjsu.cmpe275.Model.Flight;
 import edu.sjsu.cmpe275.Model.Passenger;
 import edu.sjsu.cmpe275.Repository.FlightRepository;
@@ -65,6 +66,7 @@ public class PassengerServiceImpl implements PassengerService {
         //delete all the reservations made by the passenger
 //        deleteReservationsOfPassengerService(id);
         //delete the passenger
+        if(true ) throw new RuntimeException("Test runtime exception");
         passengerRepository.deleteById(id);
         return true;
 
