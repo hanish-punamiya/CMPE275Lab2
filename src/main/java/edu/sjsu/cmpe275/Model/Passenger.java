@@ -38,14 +38,14 @@ public class Passenger {
     @JsonIgnoreProperties({"passenger","price","flights"})
     private List<Reservation> reservations;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name="flight_passengers",
             joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id", nullable = false)},
             inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flightnumber", nullable = false)}
     )
     @JsonIgnoreProperties({"price","seatsLeft","description","plane","passengers"})
-    private List<Flight> flights = new ArrayList<>();
+    private List<Flight> flights;
 
     public Passenger(long id,
                      String firstName,

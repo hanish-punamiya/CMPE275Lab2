@@ -50,7 +50,7 @@ public class Flight {
 
     @ManyToMany(mappedBy = "flights", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"age","gender","phone","reservations","flights"})
-    private List<Passenger> passengers = new ArrayList<>();
+    private List<Passenger> passengers;
 
     @ManyToMany(mappedBy = "flights", fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"passenger","price","flights"})
