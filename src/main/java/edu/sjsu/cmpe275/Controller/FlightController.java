@@ -70,6 +70,21 @@ public class FlightController {
     	
     }
 
+    /**  
+     * This method is used to create or update a flight. 
+     * @param flightNumber is the flight id to be created or updated(if exists already) 
+     * @param price The price of the flight
+     * @param origin The origin of the flight
+     * @param destination The destination of the flight
+     * @param departureTime The string form of the departure time.  Convert to Date. 
+     * @param arrivalTime The string form of the arrival time.  Convert to Date. 
+     * @param description String description of the flight.
+     * @param capacity Total capacity of the plane.
+     * @param model Model of the plane.
+     * @param manufacturer Manufacturer company that made the plane.
+     * @param yearOfManufacture Year the plane was built.
+     * @return ResponseEntity<Object> This returns a response entity with either the Flight created/updated or an error message.
+     */
     @PostMapping(value="/flight/{flightNumber}")
     public ResponseEntity<Object> createUpdateFlight(
         @PathVariable("flightNumber") long flightNumber,
@@ -127,7 +142,12 @@ public class FlightController {
         }        
     }
 
-    //checks for all the flights the passenger is on along with the flights passed in the parameter
+    /**  
+     * This method is used to check for overlap between a passenger's reservations and a list of flights
+     * @param passenger is the passenger to be checked
+     * @param flights are the flights to check overlap with
+     * @return boolean true=there is no overlap  false=there is overlap
+     */
     public boolean checkReservationsOverlap(Passenger passenger, List<Flight> flights) {
         try {
 //            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);
@@ -144,7 +164,11 @@ public class FlightController {
         return true;
     }
 
-    //checks for the flights passed in the parameter
+    /**  
+     * This method is used check overlap between a list of sorted flights
+     * @param flights are the flights to check overlap with
+     * @return boolean true=there is no overlap  false=there is overlap
+     */
     public static boolean checkOverlap(List<Flight> flights) {
         try {
             Date arrivalTime = new Date();
@@ -165,6 +189,11 @@ public class FlightController {
         return true;
     }
 
+    /**  
+     * This method is used to delete a flight. 
+     * @param flightNumber is the flight id to be deleted
+     * @return ResponseEntity<Object> This returns a response entity with a success message or an error message.
+     */
     @DeleteMapping("/airline/{flightnumber}")
     public ResponseEntity<Object> deleteFlight(@PathVariable("flightnumber") long flightNumber) {
         Optional<Flight> FlightData = flightRepository.findById(flightNumber);
@@ -185,6 +214,11 @@ public class FlightController {
         }
     }
 
+    /**  
+     * This method is used to convert a String date to a Date object. 
+     * @param date is the String date to be converted
+     * @return Date object parsed from string
+     */
     public Date parseDate(String date) {
         try {
             return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(date);
