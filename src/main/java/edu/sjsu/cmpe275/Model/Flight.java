@@ -1,5 +1,6 @@
 package edu.sjsu.cmpe275.Model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -33,9 +34,11 @@ public class Flight {
      */
 
     @Column(name="departuretime")
+    @JsonFormat(pattern="yyyy-MM-dd-HH")
     private Date departureTime;
 
     @Column(name="arrivaltime")
+    @JsonFormat(pattern="yyyy-MM-dd-HH")
     private Date arrivalTime;
 
     @Column(name="seatsleft")

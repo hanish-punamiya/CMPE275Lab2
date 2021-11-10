@@ -1,6 +1,7 @@
 package edu.sjsu.cmpe275.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +14,7 @@ import java.util.List;
 @XmlRootElement
 @Entity
 @Table(name = "passenger")
-@JsonIgnoreProperties({"flights"})
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Passenger {
 
     @Id

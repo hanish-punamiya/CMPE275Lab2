@@ -1,5 +1,6 @@
 package edu.sjsu.cmpe275.Controller;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.sjsu.cmpe275.Helper.Error.Response;
 import edu.sjsu.cmpe275.Model.Passenger;
 import edu.sjsu.cmpe275.Repository.PassengerRepository;
@@ -49,7 +50,9 @@ public class PassengerController {
                 _passenger.setAge(age);
                 _passenger.setGender(gender);
                 _passenger.setPhone(phone);
-                return new ResponseEntity<Object>(passengerRepository.save(_passenger), HttpStatus.OK);
+                Passenger newPassenger = passengerRepository.save(_passenger);
+                newPassenger.setFlights(null);
+                return new ResponseEntity<Object>(newPassenger, HttpStatus.OK);
             } else {
                 return new ResponseEntity<Object>(new Response("404","Passenger not found"),HttpStatus.NOT_FOUND);
             }
