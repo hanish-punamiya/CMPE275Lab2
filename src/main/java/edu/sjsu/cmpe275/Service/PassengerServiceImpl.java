@@ -54,7 +54,8 @@ public class PassengerServiceImpl implements PassengerService {
         Passenger passenger = passengerRepository.getById(id);
         System.out.println("passenger  = " + passenger.getFirstName());
         //get all flight ids of the passenger
-        List<Flight> flights_of_passenger = passenger.getFlights();
+        List<Flight> flights_of_passenger = new ArrayList<>();
+        flights_of_passenger = passenger.getFlights() ;
         for(Flight flight : flights_of_passenger){
             System.out.println("number of seats = " + flight.getSeatsLeft());
             flight.setSeatsLeft(flight.getSeatsLeft()+1);
@@ -66,7 +67,6 @@ public class PassengerServiceImpl implements PassengerService {
         //delete all the reservations made by the passenger
 //        deleteReservationsOfPassengerService(id);
         //delete the passenger
-        if(true ) throw new RuntimeException("Test runtime exception");
         passengerRepository.deleteById(id);
         return true;
 
