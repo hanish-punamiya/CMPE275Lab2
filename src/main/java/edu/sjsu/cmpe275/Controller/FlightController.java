@@ -1,6 +1,7 @@
 package edu.sjsu.cmpe275.Controller;
 
 
+import edu.sjsu.cmpe275.Helper.Error.Response;
 import edu.sjsu.cmpe275.Model.Flight;
 import edu.sjsu.cmpe275.Model.Passenger;
 import edu.sjsu.cmpe275.Model.Plane;
@@ -58,11 +59,12 @@ public class FlightController {
    		    map.put("code", "404");
    		    map.put("msg", "Sorry, the requested flight with number "+flightNumber+" does not exist");
 		    mapnew.put("Bad Request", map);
-   			return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
+   			return new ResponseEntity<>(new Response("404","Sorry, the requested flight with number "+flightNumber+" does not exist"), HttpStatus.NOT_FOUND);
     		// not found
     	}
     	else
     	{
+            flight.get().setReservations(null);
     		return new ResponseEntity<>(flight, HttpStatus.OK);
     	}
     	

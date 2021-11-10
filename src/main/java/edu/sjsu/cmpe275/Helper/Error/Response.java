@@ -2,18 +2,18 @@ package edu.sjsu.cmpe275.Helper.Error;
 
 public class Response {
 
-    private Error error;
+    private Error badRequest;
 
     public Response(String code, String msg) {
         Error Error = new Error(code,msg);
-        this.error = Error;
+        this.badRequest = Error;
     }
 
-    public Error getError() {
-        return error;
+    public Error getBadRequest() {
+        return badRequest;
     }
 
-    public void setError(Error Error) {
-        this.error = Error;
+    public void setBadRequest(Error Error) {
+        this.badRequest = Error;
     }
 }
