@@ -113,11 +113,12 @@ public class PassengerController {
                 return new ResponseEntity<>(new Response("404", "Passenger with ID " + id + " does not exist"), HttpStatus.NOT_FOUND);
             }
             passengerService.deletePassengerService(id);
-            Map<String, String> successResponse = new HashMap<>();
-            successResponse.put("code", "200");
-            successResponse.put("msg", "Passenger with ID " + id + " is successfully deleted");
-
-            return new ResponseEntity<>(successResponse,HttpStatus.OK);
+//            Map<String, String> successResponse = new HashMap<>();
+//            successResponse.put("code", "200");
+//            successResponse.put("msg", "Passenger with ID " + id + " is successfully deleted");
+//
+//            return new ResponseEntity<>(successResponse,HttpStatus.OK);
+            return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Passenger with ID \" + id + \" is successfully deleted"), HttpStatus.OK);
         }catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -83,7 +83,6 @@ public class ReservationController {
             map.put("msg", "reservation with number " + number + " does not exist");
             mapnew.put("Bad Request", map);
             return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
-
         } else {
             Optional<Reservation> reservationData = reservationRepository.findById(number);
             if (reservationData.isPresent()) {
