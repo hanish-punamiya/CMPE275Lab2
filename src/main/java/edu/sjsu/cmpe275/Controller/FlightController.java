@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/flight")
 public class FlightController {
 
     @Autowired
@@ -46,7 +45,7 @@ public class FlightController {
     
     
     
-    @GetMapping(value = "/{flightNumber}", produces = {"application/json", "application/xml"})
+    @GetMapping(value = "/flight/{flightNumber}", produces = {"application/json", "application/xml"})
     public ResponseEntity<?> getFlight(@PathVariable Long flightNumber) {
     	HashMap<String, Object> map = new HashMap<>();
        	HashMap<String, Object> mapnew = new HashMap<>();
@@ -69,7 +68,7 @@ public class FlightController {
     	
     }
 
-    @PostMapping(value="/{flightNumber}")
+    @PostMapping(value="/flight/{flightNumber}")
     public ResponseEntity<Object> createUpdateFlight(
         @PathVariable("flightNumber") long flightNumber,
         @RequestParam int price,
@@ -164,7 +163,7 @@ public class FlightController {
         return true;
     }
 
-    @DeleteMapping("/{flightnumber}")
+    @DeleteMapping("/airline/{flightnumber}")
     public ResponseEntity<Object> deleteFlight(@PathVariable("flightnumber") long flightNumber) {
         Optional<Flight> FlightData = flightRepository.findById(flightNumber);
 
@@ -186,7 +185,7 @@ public class FlightController {
 
     public Date parseDate(String date) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd hh").parse(date);
+            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(date);
         } catch (Exception e) {
             return new Date();
         }

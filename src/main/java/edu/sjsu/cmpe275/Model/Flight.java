@@ -34,11 +34,11 @@ public class Flight {
      */
 
     @Column(name="departuretime")
-    @JsonFormat(pattern="yyyy-MM-dd-HH")
+    @JsonFormat(pattern="yyyy-MM-dd-HH", timezone="America/Los_Angeles")
     private Date departureTime;
 
     @Column(name="arrivaltime")
-    @JsonFormat(pattern="yyyy-MM-dd-HH")
+    @JsonFormat(pattern="yyyy-MM-dd-HH", timezone="America/Los_Angeles")
     private Date arrivalTime;
 
     @Column(name="seatsleft")
