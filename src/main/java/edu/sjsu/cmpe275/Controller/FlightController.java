@@ -7,6 +7,7 @@ import edu.sjsu.cmpe275.Model.Plane;
 import edu.sjsu.cmpe275.Repository.FlightRepository;
 import edu.sjsu.cmpe275.Repository.PassengerRepository;
 import edu.sjsu.cmpe275.Repository.PlaneRepository;
+import edu.sjsu.cmpe275.Helper.Error.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,7 +70,7 @@ public class FlightController {
     }
 
     @PostMapping(value="/{flightNumber}")
-    public ResponseEntity<Flight> createUpdateFlight(
+    public ResponseEntity<Object> createUpdateFlight(
         @PathVariable("flightNumber") long flightNumber,
         @RequestParam int price,
         @RequestParam String origin,
@@ -86,14 +87,17 @@ public class FlightController {
         if(FlightData.isPresent()) {
             Flight currFlight = FlightData.get();
             if(capacity < currFlight.getPlane().getCapacity() - currFlight.getSeatsLeft()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<Object>(new Response("400", "Reservation count is higher than target capacity."), HttpStatus.BAD_REQUEST);
             } 
 
             if(currFlight.getPassengers().size() > 0) {
+                List<Flight> flight_list = new ArrayList<>();
+                flight_list.add(currFlight);
                 for(Passenger p : currFlight.getPassengers()) {
-
+                    if(!checkReservationsOverlap(p, flight_list)) {
+                        return new ResponseEntity<Object>(new Response("400", "A passenger has an overlapping flight with this updated flight."), HttpStatus.BAD_REQUEST);
+                    }
                 }
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
             currFlight.setPrice(price);
@@ -115,26 +119,68 @@ public class FlightController {
                     parseDate(departureTime), parseDate(arrivalTime), capacity, description, 
                     createdPlane, new ArrayList<>(), new ArrayList<>()
                 ));
-                return new ResponseEntity<>(createdFlight, HttpStatus.OK);
+                return new ResponseEntity<Object>(createdFlight, HttpStatus.OK);
             } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }        
     }
 
+    //checks for all the flights the passenger is on along with the flights passed in the parameter
+    public boolean checkReservationsOverlap(Passenger passenger, List<Flight> flights) {
+        try {
+//            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);
+            List<Long> flightIds = new ArrayList<>();
+            passenger.getFlights().forEach(flight -> flightIds.add(flight.getFlightNumber()));
+            List<Flight> newList = new ArrayList<>();
+            flights.forEach(newList::add);
+            flightRepository.findAllById(flightIds).forEach(newList::add);
+            if (!checkOverlap(newList))
+                return false;
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
+    //checks for the flights passed in the parameter
+    public static boolean checkOverlap(List<Flight> flights) {
+        try {
+            Date arrivalTime = new Date();
+            arrivalTime.setTime(0);
+            Date departureTime = new Date();
+            flights.sort(Comparator.comparing(Flight::getDepartureTime));
+            for (Flight flight : flights) {
+                departureTime = flight.getDepartureTime();
+
+                if (arrivalTime.after(departureTime))
+                    return false;
+
+                arrivalTime = flight.getArrivalTime();
+            }
+        } catch (Exception exception) {
+            return false;
+        }
+        return true;
+    }
+
     @DeleteMapping("/{flightnumber}")
-    public ResponseEntity<String> deleteFlight(@PathVariable("flightnumber") long flightNumber) {
+    public ResponseEntity<Object> deleteFlight(@PathVariable("flightnumber") long flightNumber) {
         Optional<Flight> FlightData = flightRepository.findById(flightNumber);
 
-        if(FlightData.isPresent() && FlightData.get().getPassengers().size() == 0) {
-            try{
-                flightRepository.deleteById(flightNumber);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if(FlightData.isPresent()) {
+            if(FlightData.get().getPassengers().size() == 0) {
+                try{
+                    flightRepository.deleteById(flightNumber);
+                    return new ResponseEntity<Object>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Flight with number "+flightNumber+" is deleted successfully."), HttpStatus.OK);           
+                } catch (Exception e) {
+                    return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                return new ResponseEntity<Object>(new Response("404", "This flight has a passenger on it."), HttpStatus.NOT_FOUND);
             }
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<Object>(new Response("404", "This flight number doesn't exist."), HttpStatus.NOT_FOUND);
         }
     }
 
