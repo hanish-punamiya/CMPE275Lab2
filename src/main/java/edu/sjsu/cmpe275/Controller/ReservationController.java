@@ -10,9 +10,12 @@ import edu.sjsu.cmpe275.Repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.sql.SQLException;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -37,6 +40,7 @@ public class ReservationController {
      * @return The retrieved reservation in its full form
      */
     @GetMapping("/{number}")
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> getReservation(@PathVariable("number") Long id) {
         try {
             Optional<Reservation> reservationData = reservationRepository.findById(id);
@@ -48,9 +52,16 @@ public class ReservationController {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    /**
+     * This method deletes a reservation which exists.
+     *
+     * @return Success message when a reservation is cancelled, error message otherwise.
+     */
+    
     @DeleteMapping("/{number}")
+    @Transactional(rollbackFor = { Exception.class})
     public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
+    	try {
         Optional<Reservation> reservation =
                 reservationRepository
                         .findById(number);
@@ -68,8 +79,13 @@ public class ReservationController {
                 }
             }
             reservationRepository.deleteById(number);
+            return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Reservation number " + number + " is successfully cancelled"), HttpStatus.OK);
 
-            return new ResponseEntity<>(reservation, HttpStatus.OK);
+        }
+    	}
+    	catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
@@ -83,6 +99,7 @@ public class ReservationController {
      * @return The newly created reservation.
      */
     @PostMapping()
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
         try {
             List<Flight> flights = new ArrayList<Flight>();
@@ -109,15 +126,22 @@ public class ReservationController {
             passengerRepository.save(passenger);
             return new ResponseEntity<Object>(reservationRepository.save(reservation), HttpStatus.OK);
         } catch (Exception exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /**
+     * This method updates the reservation by adding and removing flights. It also recalculates attributes such as price, origin and destination.
+     *
+     * @param flightsAdded List of the flights to be added
+     * @param flightsRemoved List of the flights to be removed
+     * @return The updated reservation in its full form
+     */
 
-    @PutMapping("/{number}")
-    public ResponseEntity<?> updateReservaton(
-            @PathVariable int number,
-            @RequestParam(value = "flightsAdded", required = false) String flightsAdded,
-            @RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
+    @PostMapping("/{number}")
+    @Transactional(rollbackFor = { Exception.class})
+    public ResponseEntity<?> updateReservaton(@PathVariable int number,@RequestParam(value = "flightsAdded", required = false) String flightsAdded,@RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
         try {
             Set<Flight> flightlist = new HashSet<Flight>();
             Set<Flight> flights_new = new HashSet<Flight>();
@@ -206,8 +230,8 @@ public class ReservationController {
             updateReservation(currentReservation);
             reservationRepository.save(currentReservation);
             return new ResponseEntity<>(currentReservation, HttpStatus.OK);
-        } catch (Exception e) {
-
+        } catch (Exception exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
         return new ResponseEntity<Object>(new Response("404", "Unknown Error"), HttpStatus.NOT_FOUND);
@@ -215,6 +239,10 @@ public class ReservationController {
 
     }
 
+    /**
+     * This method updates the reservation price, origin and destination.
+     *@param current Reservation object
+     */
 
     void updateReservation(Reservation reservation) {
         // update price
@@ -226,7 +254,6 @@ public class ReservationController {
         reservation.setPrice(price);
         // update origin and destination
 
-
         // sort by departure date
         flights.sort(Comparator.comparing(Flight::getDepartureTime));
         String origin = flights.get(0).getOrigin();
@@ -237,16 +264,6 @@ public class ReservationController {
 
     }
 
-    ResponseEntity<?> createBadRequest(String msg) {
-        HashMap<String, Object> map = new HashMap<>();
-        HashMap<String, Object> mapnew = new HashMap<>();
-        mapnew.clear();
-        map.clear();
-        map.put("code", "404");
-        map.put("msg", msg);
-        mapnew.put("Bad Request", map);
-        return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
-    }
 
     /**
      * Checks for the overlap of the flights within the given list
