@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -52,6 +53,7 @@ public class PassengerController {
      * @return Updated passenger details
      */
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName,
                                                   @RequestParam("lastname") String lastName, @RequestParam("age") int age,
                                                   @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
@@ -66,6 +68,7 @@ public class PassengerController {
                 _passenger.setPhone(phone);
                 Passenger newPassenger = passengerRepository.save(_passenger);
                 newPassenger.setFlights(null);
+                if(true) throw new RuntimeException("exception");
                 return new ResponseEntity<Object>(newPassenger, HttpStatus.OK);
             } else {
                 return new ResponseEntity<Object>(new Response("404", "Passenger not found"), HttpStatus.NOT_FOUND);
