@@ -51,7 +51,6 @@ public class ReservationController {
     /**
      * This method deletes a reservation which exists.
      *
-     * 
      * @return Success message when a reservation is cancelled, error message otherwise.
      */
     
@@ -74,8 +73,8 @@ public class ReservationController {
                 }
             }
             reservationRepository.deleteById(number);
+            return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Reservation number " + number + " is successfully cancelled"), HttpStatus.OK);
 
-            return new ResponseEntity<>(reservation, HttpStatus.OK);
         }
 
 
@@ -127,11 +126,8 @@ public class ReservationController {
      * @return The updated reservation in its full form
      */
 
-    @PutMapping("/{number}")
-    public ResponseEntity<?> updateReservaton(
-            @PathVariable int number,
-            @RequestParam(value = "flightsAdded", required = false) String flightsAdded,
-            @RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
+    @PostMapping("/{number}")
+    public ResponseEntity<?> updateReservaton(@PathVariable int number,@RequestParam(value = "flightsAdded", required = false) String flightsAdded,@RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
         try {
             Set<Flight> flightlist = new HashSet<Flight>();
             Set<Flight> flights_new = new HashSet<Flight>();
