@@ -54,9 +54,10 @@ public class FlightController {
      */
     
     @GetMapping(value = "/flight/{flightNumber}", produces = {"application/json", "application/xml"})
+    @Transactional(rollbackFor = { Exception.class})
     public ResponseEntity<?> getFlight(@PathVariable Long flightNumber) {
     
-    	
+    	try {
     	Optional<Flight> flight = flightRepository.findById(flightNumber);
     	if(flight.isEmpty())
     	{
@@ -68,6 +69,10 @@ public class FlightController {
             flight.get().setReservations(null);
     		return new ResponseEntity<>(flight, HttpStatus.OK);
     	}
+    	}catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     	
     }
 

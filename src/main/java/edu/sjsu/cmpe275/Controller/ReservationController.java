@@ -59,7 +59,9 @@ public class ReservationController {
      */
     
     @DeleteMapping("/{number}")
+    @Transactional(rollbackFor = { Exception.class})
     public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
+    	try {
         Optional<Reservation> reservation =
                 reservationRepository
                         .findById(number);
@@ -79,6 +81,11 @@ public class ReservationController {
             reservationRepository.deleteById(number);
             return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Reservation number " + number + " is successfully cancelled"), HttpStatus.OK);
 
+        }
+    	}
+    	catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
@@ -133,6 +140,7 @@ public class ReservationController {
      */
 
     @PostMapping("/{number}")
+    @Transactional(rollbackFor = { Exception.class})
     public ResponseEntity<?> updateReservaton(@PathVariable int number,@RequestParam(value = "flightsAdded", required = false) String flightsAdded,@RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
         try {
             Set<Flight> flightlist = new HashSet<Flight>();
@@ -222,8 +230,8 @@ public class ReservationController {
             updateReservation(currentReservation);
             reservationRepository.save(currentReservation);
             return new ResponseEntity<>(currentReservation, HttpStatus.OK);
-        } catch (Exception e) {
-
+        } catch (Exception exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
         return new ResponseEntity<Object>(new Response("404", "Unknown Error"), HttpStatus.NOT_FOUND);
