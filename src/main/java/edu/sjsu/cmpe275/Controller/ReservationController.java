@@ -10,9 +10,12 @@ import edu.sjsu.cmpe275.Repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.sql.SQLException;
 import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:8080")
@@ -37,6 +40,7 @@ public class ReservationController {
      * @return The retrieved reservation in its full form
      */
     @GetMapping("/{number}")
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> getReservation(@PathVariable("number") Long id) {
         try {
             Optional<Reservation> reservationData = reservationRepository.findById(id);
@@ -83,6 +87,7 @@ public class ReservationController {
      * @return The newly created reservation.
      */
     @PostMapping()
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
         try {
             List<Flight> flights = new ArrayList<Flight>();
@@ -109,6 +114,7 @@ public class ReservationController {
             passengerRepository.save(passenger);
             return new ResponseEntity<Object>(reservationRepository.save(reservation), HttpStatus.OK);
         } catch (Exception exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

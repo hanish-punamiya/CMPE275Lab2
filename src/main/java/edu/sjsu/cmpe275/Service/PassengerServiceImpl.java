@@ -68,6 +68,7 @@ public class PassengerServiceImpl implements PassengerService {
 //        deleteReservationsOfPassengerService(id);
         //delete the passenger
         passengerRepository.deleteById(id);
+        if(true) throw new RuntimeException("e");
         return true;
 
     }
