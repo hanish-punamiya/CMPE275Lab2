@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-//import com.fasterxml.jackson.xml.XmlMapper;
 
 
 import java.util.*;
@@ -30,31 +29,13 @@ public class ReservationController {
     @Autowired
     PassengerRepository passengerRepository;
 
-    @GetMapping("/")
-    public ResponseEntity<Object> getAllReservations() {
-        try {
 
-            return new ResponseEntity<Object>(new edu.sjsu.cmpe275.Helper.Success.Response("404", "Hanish"), HttpStatus.OK);
-
-//            List<Reservation> reservations = new ArrayList<Reservation>();
-//
-//            List<Long> ids = new ArrayList<Long>();
-//            ids.add(5L);
-//            ids.add(2L);
-//
-//            reservationRepository.findAllById(ids).forEach(reservations::add);
-//            reservations.sort(Comparator.comparing(Reservation::getReservationNumber));
-//            Collections.reverse(reservations);
-//
-//            if (reservations.isEmpty()) {
-//                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//            }
-//            return new ResponseEntity<Object>(reservations, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /**
+     * This method sends the reservation as response in its full form.
+     *
+     * @param id Id of the reservation to be retrieved
+     * @return The retrieved reservation in its full form
+     */
     @GetMapping("/{number}")
     public ResponseEntity<Object> getReservation(@PathVariable("number") Long id) {
         try {
@@ -70,19 +51,10 @@ public class ReservationController {
 
     @DeleteMapping("/{number}")
     public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
-        //System.out.print("inside delete");
-//        HashMap<String, Object> map = new HashMap<>();
-//        HashMap<String, Object> mapnew = new HashMap<>();
         Optional<Reservation> reservation =
                 reservationRepository
                         .findById(number);
         if (!reservation.isPresent()) {
-//            mapnew.clear();
-//            map.clear();
-//            map.put("code", "404");
-//            map.put("msg", "reservation with number " + number + " does not exist");
-//            mapnew.put("Bad Request", map);
-            //return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
             return new ResponseEntity<Object>(new Response("404", "Reservation with number " + number + " does not exist"), HttpStatus.NOT_FOUND);
 
         } else {
@@ -103,6 +75,13 @@ public class ReservationController {
 
     }
 
+    /**
+     * This method returns the successfully booked reservation as a response. It checks for the overlap of given flights as well as other flight reservations.
+     *
+     * @param passengerId Id of the passenger for whom the reservation needs to be made
+     * @param flightNumbers List of flights in the reservation
+     * @return The newly created reservation.
+     */
     @PostMapping()
     public ResponseEntity<Object> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
         try {
@@ -269,7 +248,11 @@ public class ReservationController {
         return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
     }
 
-    //checks for the flights passed in the parameter
+    /**
+     * Checks for the overlap of the flights within the given list
+     * @param flights to be checked if they overlap
+     * @return true if flights do not overlap
+     */
     public static boolean checkOverlap(List<Flight> flights) {
         try {
             Date arrivalTime = new Date();
@@ -291,7 +274,11 @@ public class ReservationController {
         return true;
     }
 
-    //checks if there are seats left on the flight
+    /**
+     * Checks if there are any seats left on the flight
+     * @param flights to be checked if they have seats left on them
+     * @return true if seats are left on the flight
+     */
     public static boolean checkSeatsLeft(List<Flight> flights) {
         try {
             for (Flight flight :
@@ -305,7 +292,12 @@ public class ReservationController {
         return true;
     }
 
-    //checks for all the flights the passenger is on along with the flights passed in the parameter
+    /**
+     * Checks for all the flights the passenger is on along with the flights passed in the parameter
+     * @param passenger who's other flights need to be checked for overlap
+     * @param flights to be checked for overlap along with other flights the passenger is on
+     * @return true if the flights do not overlap
+     */
     public boolean checkReservationsOverlap(Passenger passenger, List<Flight> flights) {
         try {
 //            Optional<Passenger> PassengerData = passengerRepository.findById(passengerId);
@@ -322,6 +314,12 @@ public class ReservationController {
         return true;
     }
 
+    /**
+     * Creates a reservation object with all the details of the passenger and the flights
+     * @param passenger details to be used to create a reservation
+     * @param flights to be added to the reservation
+     * @return newly created reservation object
+     */
     private Reservation createReservation(Passenger passenger, List<Flight> flights) {
         try {
             Reservation reservation = new Reservation();

@@ -10,6 +10,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
+    /**
+     * The method is used to change the API response between XML and JSON
+     * @param configurer
+     */
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
 
