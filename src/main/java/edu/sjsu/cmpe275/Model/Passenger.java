@@ -38,7 +38,7 @@ public class Passenger {
 
     @OneToMany(mappedBy = "passenger", fetch = FetchType.EAGER)
     @JsonIgnoreProperties({"passenger","price","flights"})
-    private List<Reservation> reservations;
+    private List<Reservation> reservations = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
@@ -69,7 +69,6 @@ public class Passenger {
 
     public Passenger() {
     }
-
     public long getId() {
         return id;
     }
@@ -133,4 +132,5 @@ public class Passenger {
     public void setFlights(List<Flight> flights) {
         this.flights = flights;
     }
+
 }

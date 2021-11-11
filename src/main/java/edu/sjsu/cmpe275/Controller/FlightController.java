@@ -44,21 +44,19 @@ public class FlightController {
     @Autowired
     PlaneRepository planeRepository;
     
-    
+    /**  
+     * This method is used to get details of a flight. 
+     * 
+     * @return ResponseEntity<?> This returns a response entity with the flight details of a particular flight or an error message if flight is not found.
+     */
     
     @GetMapping(value = "/flight/{flightNumber}", produces = {"application/json", "application/xml"})
     public ResponseEntity<?> getFlight(@PathVariable Long flightNumber) {
-    	HashMap<String, Object> map = new HashMap<>();
-       	HashMap<String, Object> mapnew = new HashMap<>();
+    
     	
     	Optional<Flight> flight = flightRepository.findById(flightNumber);
     	if(flight.isEmpty())
     	{
-    		mapnew.clear();
-   	   	    map.clear();
-   		    map.put("code", "404");
-   		    map.put("msg", "Sorry, the requested flight with number "+flightNumber+" does not exist");
-		    mapnew.put("Bad Request", map);
    			return new ResponseEntity<>(new Response("404","Sorry, the requested flight with number "+flightNumber+" does not exist"), HttpStatus.NOT_FOUND);
     		// not found
     	}

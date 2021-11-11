@@ -52,7 +52,12 @@ public class ReservationController {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    /**
+     * This method deletes a reservation which exists.
+     *
+     * @return Success message when a reservation is cancelled, error message otherwise.
+     */
+    
     @DeleteMapping("/{number}")
     public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
         Optional<Reservation> reservation =
@@ -72,8 +77,8 @@ public class ReservationController {
                 }
             }
             reservationRepository.deleteById(number);
+            return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Reservation number " + number + " is successfully cancelled"), HttpStatus.OK);
 
-            return new ResponseEntity<>(reservation, HttpStatus.OK);
         }
 
 
@@ -118,12 +123,17 @@ public class ReservationController {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /**
+     * This method updates the reservation by adding and removing flights. It also recalculates attributes such as price, origin and destination.
+     *
+     * @param flightsAdded List of the flights to be added
+     * @param flightsRemoved List of the flights to be removed
+     * @return The updated reservation in its full form
+     */
 
-    @PutMapping("/{number}")
-    public ResponseEntity<?> updateReservaton(
-            @PathVariable int number,
-            @RequestParam(value = "flightsAdded", required = false) String flightsAdded,
-            @RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
+    @PostMapping("/{number}")
+    public ResponseEntity<?> updateReservaton(@PathVariable int number,@RequestParam(value = "flightsAdded", required = false) String flightsAdded,@RequestParam(value = "flightsRemoved", required = false) String flightsRemoved) {
         try {
             Set<Flight> flightlist = new HashSet<Flight>();
             Set<Flight> flights_new = new HashSet<Flight>();
@@ -221,6 +231,10 @@ public class ReservationController {
 
     }
 
+    /**
+     * This method updates the reservation price, origin and destination.
+     *@param current Reservation object
+     */
 
     void updateReservation(Reservation reservation) {
         // update price
@@ -232,7 +246,6 @@ public class ReservationController {
         reservation.setPrice(price);
         // update origin and destination
 
-
         // sort by departure date
         flights.sort(Comparator.comparing(Flight::getDepartureTime));
         String origin = flights.get(0).getOrigin();
@@ -243,16 +256,6 @@ public class ReservationController {
 
     }
 
-    ResponseEntity<?> createBadRequest(String msg) {
-        HashMap<String, Object> map = new HashMap<>();
-        HashMap<String, Object> mapnew = new HashMap<>();
-        mapnew.clear();
-        map.clear();
-        map.put("code", "404");
-        map.put("msg", msg);
-        mapnew.put("Bad Request", map);
-        return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
-    }
 
     /**
      * Checks for the overlap of the flights within the given list
