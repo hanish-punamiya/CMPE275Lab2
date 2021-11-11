@@ -1,5 +1,6 @@
 package edu.sjsu.cmpe275.Controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.sjsu.cmpe275.Helper.Error.Response;
 import edu.sjsu.cmpe275.Model.Passenger;
@@ -39,6 +40,16 @@ public class PassengerController {
         }
     }
 
+    /**
+     *
+     * @param id - passenger id
+     * @param firstName - first name of the passenger
+     * @param lastName - last name of the passenger
+     * @param age - age of the passenger
+     * @param gender - gender of the passenger
+     * @param phone - phone number of the passenger
+     * @return
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
         try{
@@ -61,19 +72,20 @@ public class PassengerController {
         }
     }
 
+
+    /**
+     *
+     * @param id - passenger id
+     * @return if there is no passenger return error else return passenger
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPassenger(@PathVariable("id") long id) {
         try{
             Optional<Passenger> passenger = passengerService.getPassengerService(id);
             if (passenger.isEmpty()) {
-//                Map<String, String> errorResponse = new HashMap<>();
-//                Map<String, Map> error = new HashMap<>();
-//                errorResponse.put("code", "404");
-//                errorResponse.put("msg", "Sorry, the requested passenger with ID " + id + " does not exist");
-//                error.put("BadRequest", errorResponse);
-//                return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(new Response("404", "Sorry, the requested passenger with ID " + id + " does not exist"), HttpStatus.NOT_FOUND);
             } else {
+                passenger.get().setFlights(null);
                 return new ResponseEntity<>(passenger.get(), HttpStatus.OK);
             }
         }catch (Exception exception){
@@ -82,17 +94,20 @@ public class PassengerController {
 
     }
 
+    /**
+     *
+     * @param firstName
+     * @param lastName
+     * @param age
+     * @param gender
+     * @param phone
+     * @return the created passenger if the phone number is unique
+     */
     @PostMapping("/")
     public ResponseEntity<Object> createPassenger(@RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
         try{
             Passenger passenger = passengerService.createPassengerService(firstName, lastName, age, gender, phone);
             if (passenger == null) {
-//                Map<String, String> errorResponse = new HashMap<>();
-//                Map<String, Map> error = new HashMap<>();
-//                errorResponse.put("code", "400");
-//                errorResponse.put("msg", "Another passenger with the same number already exists");
-//                error.put("BadRequest", errorResponse);
-//                return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
                 return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>(passenger, HttpStatus.OK);
@@ -102,25 +117,19 @@ public class PassengerController {
 
     }
 
+    /**
+     *
+     * @param id - passenger id
+     * @return success message if the passenger is deleted successfully else error message
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletePassenger(@PathVariable("id") long id){
         try{
             Optional<Passenger> passenger = passengerService.getPassengerService(id);
             if (passenger.isEmpty()) {
-//                Map<String, String> errorResponse = new HashMap<>();
-//                Map<String, Map> error = new HashMap<>();
-//                errorResponse.put("code", "404");
-//                errorResponse.put("msg", "Passenger with ID " + id + " does not exist");
-//                error.put("BadRequest", errorResponse);
-//                return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(new Response("404", "Passenger with ID " + id + " does not exist"), HttpStatus.NOT_FOUND);
             }
             passengerService.deletePassengerService(id);
-//            Map<String, String> successResponse = new HashMap<>();
-//            successResponse.put("code", "200");
-//            successResponse.put("msg", "Passenger with ID " + id + " is successfully deleted");
-//
-//            return new ResponseEntity<>(successResponse,HttpStatus.OK);
             return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Passenger with ID " + id + " is successfully deleted"), HttpStatus.OK);
         }catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
