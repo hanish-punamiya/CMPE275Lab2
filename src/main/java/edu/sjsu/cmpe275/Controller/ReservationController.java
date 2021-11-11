@@ -48,7 +48,13 @@ public class ReservationController {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    /**
+     * This method deletes a reservation which exists.
+     *
+     * 
+     * @return Success message when a reservation is cancelled, error message otherwise.
+     */
+    
     @DeleteMapping("/{number}")
     public ResponseEntity<?> deleteReservation(@PathVariable Long number) throws Exception {
         Optional<Reservation> reservation =
@@ -112,6 +118,14 @@ public class ReservationController {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /**
+     * This method updates the reservation by adding and removing flights. It also recalculates attributes such as price, origin and destination.
+     *
+     * @param flightsAdded List of the flights to be added
+     * @param flightsRemoved List of the flights to be removed
+     * @return The updated reservation in its full form
+     */
 
     @PutMapping("/{number}")
     public ResponseEntity<?> updateReservaton(
@@ -215,6 +229,10 @@ public class ReservationController {
 
     }
 
+    /**
+     * This method updates the reservation price, origin and destination.
+     *@param current Reservation object
+     */
 
     void updateReservation(Reservation reservation) {
         // update price
@@ -226,7 +244,6 @@ public class ReservationController {
         reservation.setPrice(price);
         // update origin and destination
 
-
         // sort by departure date
         flights.sort(Comparator.comparing(Flight::getDepartureTime));
         String origin = flights.get(0).getOrigin();
@@ -237,16 +254,6 @@ public class ReservationController {
 
     }
 
-    ResponseEntity<?> createBadRequest(String msg) {
-        HashMap<String, Object> map = new HashMap<>();
-        HashMap<String, Object> mapnew = new HashMap<>();
-        mapnew.clear();
-        map.clear();
-        map.put("code", "404");
-        map.put("msg", msg);
-        mapnew.put("Bad Request", map);
-        return new ResponseEntity<>(mapnew, HttpStatus.NOT_FOUND);
-    }
 
     /**
      * Checks for the overlap of the flights within the given list
