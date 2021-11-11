@@ -62,7 +62,7 @@ public class PassengerController {
             Optional<Passenger> PassengerData = passengerRepository.findById(id);
 
             if (PassengerData.isPresent()) {
-                if(passengerRepository.findByPhone(phone)!=null && phone!=PassengerData.get().getPhone()){
+                if(passengerRepository.findByPhone(phone)!=null && !phone.equals(PassengerData.get().getPhone())){
                     return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.BAD_REQUEST);
                 }
                 Passenger _passenger = PassengerData.get();
@@ -73,8 +73,6 @@ public class PassengerController {
                 _passenger.setPhone(phone);
                 Passenger newPassenger = passengerRepository.save(_passenger);
                 newPassenger.setFlights(null);
-                if(true)
-                    throw new Exception("Hanish");
                 return new ResponseEntity<Object>(newPassenger, HttpStatus.OK);
             } else {
                 return new ResponseEntity<Object>(new Response("404", "Passenger not found"), HttpStatus.NOT_FOUND);

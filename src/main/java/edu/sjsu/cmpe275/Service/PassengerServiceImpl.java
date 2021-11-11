@@ -88,7 +88,6 @@ public class PassengerServiceImpl implements PassengerService {
         passenger.setFlights(new ArrayList<>());
         passengerRepository.save(passenger);
         passengerRepository.deleteById(id);
-        if(true) throw new RuntimeException("e");
         return true;
 
     }
