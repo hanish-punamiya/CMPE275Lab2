@@ -1,5 +1,8 @@
 package edu.sjsu.cmpe275.Helper.Success;
 
+/**
+ * This class is used to wrap the  success response for the APIs
+ */
 public class Response {
     private String code;
     private String msg;

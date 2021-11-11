@@ -41,18 +41,21 @@ public class PassengerController {
     }
 
     /**
+     * Updates the details of the passenger based on the provided parameters
      *
-     * @param id - passenger id
-     * @param firstName - first name of the passenger
-     * @param lastName - last name of the passenger
-     * @param age - age of the passenger
-     * @param gender - gender of the passenger
-     * @param phone - phone number of the passenger
-     * @return
+     * @param id        of the passenger to be updated
+     * @param firstName to be updated of the passenger
+     * @param lastName  to be updated of the passenger
+     * @param age       to be updated of the passenger
+     * @param gender    to be updated of the passenger
+     * @param phone     to be updated of the passenger
+     * @return Updated passenger details
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
-        try{
+    public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName,
+                                                  @RequestParam("lastname") String lastName, @RequestParam("age") int age,
+                                                  @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
+        try {
             Optional<Passenger> PassengerData = passengerRepository.findById(id);
             if (PassengerData.isPresent()) {
                 Passenger _passenger = PassengerData.get();
@@ -65,9 +68,9 @@ public class PassengerController {
                 newPassenger.setFlights(null);
                 return new ResponseEntity<Object>(newPassenger, HttpStatus.OK);
             } else {
-                return new ResponseEntity<Object>(new Response("404","Passenger not found"),HttpStatus.NOT_FOUND);
+                return new ResponseEntity<Object>(new Response("404", "Passenger not found"), HttpStatus.NOT_FOUND);
             }
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,7 +83,7 @@ public class PassengerController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPassenger(@PathVariable("id") long id) {
-        try{
+        try {
             Optional<Passenger> passenger = passengerService.getPassengerService(id);
             if (passenger.isEmpty()) {
                 return new ResponseEntity<>(new Response("404", "Sorry, the requested passenger with ID " + id + " does not exist"), HttpStatus.NOT_FOUND);
@@ -88,7 +91,7 @@ public class PassengerController {
                 passenger.get().setFlights(null);
                 return new ResponseEntity<>(passenger.get(), HttpStatus.OK);
             }
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -105,13 +108,13 @@ public class PassengerController {
      */
     @PostMapping("/")
     public ResponseEntity<Object> createPassenger(@RequestParam("firstname") String firstName, @RequestParam("lastname") String lastName, @RequestParam("age") int age, @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
-        try{
+        try {
             Passenger passenger = passengerService.createPassengerService(firstName, lastName, age, gender, phone);
             if (passenger == null) {
                 return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>(passenger, HttpStatus.OK);
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -123,15 +126,15 @@ public class PassengerController {
      * @return success message if the passenger is deleted successfully else error message
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletePassenger(@PathVariable("id") long id){
-        try{
+    public ResponseEntity<Object> deletePassenger(@PathVariable("id") long id) {
+        try {
             Optional<Passenger> passenger = passengerService.getPassengerService(id);
             if (passenger.isEmpty()) {
                 return new ResponseEntity<>(new Response("404", "Passenger with ID " + id + " does not exist"), HttpStatus.NOT_FOUND);
             }
             passengerService.deletePassengerService(id);
             return new ResponseEntity<>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Passenger with ID " + id + " is successfully deleted"), HttpStatus.OK);
-        }catch (Exception exception) {
+        } catch (Exception exception) {
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

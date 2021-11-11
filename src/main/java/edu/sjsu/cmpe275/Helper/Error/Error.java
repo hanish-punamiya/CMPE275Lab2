@@ -1,5 +1,8 @@
 package edu.sjsu.cmpe275.Helper.Error;
 
+/**
+ * This class is used to generate the given error output
+ */
 public class Error {
 
     private String code;
