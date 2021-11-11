@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.*;
+
 
 
 import java.util.ArrayList;
@@ -84,6 +87,7 @@ public class FlightController {
      * @return ResponseEntity<Object> This returns a response entity with either the Flight created/updated or an error message.
      */
     @PostMapping(value="/flight/{flightNumber}")
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> createUpdateFlight(
         @PathVariable("flightNumber") long flightNumber,
         @RequestParam int price,
@@ -105,10 +109,8 @@ public class FlightController {
             } 
 
             if(currFlight.getPassengers().size() > 0) {
-                List<Flight> flight_list = new ArrayList<>();
-                flight_list.add(currFlight);
                 for(Passenger p : currFlight.getPassengers()) {
-                    if(!checkReservationsOverlap(p, flight_list)) {
+                    if(checkOverlapFlights(p, parseDate(departureTime), parseDate(arrivalTime), flightNumber)) {
                         return new ResponseEntity<Object>(new Response("400", "A passenger has an overlapping flight with this updated flight."), HttpStatus.BAD_REQUEST);
                     }
                 }
@@ -135,9 +137,30 @@ public class FlightController {
                 ));
                 return new ResponseEntity<Object>(createdFlight, HttpStatus.OK);
             } catch (Exception e) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return new ResponseEntity<Object>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }        
+    }
+
+    /**  
+     * This method is used to check for overlap between a passenger's reservations and a flight
+     * @param passenger is the passenger to be checked
+     * @param flight are the flights to check overlap with
+     * @return boolean true=there is no overlap  false=there is overlap
+     */
+    public boolean checkOverlapFlights(Passenger p, Date newDeparture, Date newArrival, long flightNumber) {
+        List<Long> flightIds = new ArrayList<>();
+        p.getFlights().forEach(flight -> flightIds.add(flight.getFlightNumber()));
+        List<Flight> flightList = new ArrayList<>();
+        flightRepository.findAllById(flightIds).forEach(flightList::add);
+
+        for(Flight pFlight : flightList) {
+            if(newDeparture.before(pFlight.getArrivalTime()) && newArrival.after(pFlight.getDepartureTime()) && pFlight.getFlightNumber()!=flightNumber) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**  
@@ -173,13 +196,15 @@ public class FlightController {
             arrivalTime.setTime(0);
             Date departureTime = new Date();
             flights.sort(Comparator.comparing(Flight::getDepartureTime));
+            long prevId = -1;
             for (Flight flight : flights) {
                 departureTime = flight.getDepartureTime();
 
-                if (arrivalTime.after(departureTime))
+                if (arrivalTime.after(departureTime) && flight.getFlightNumber()!=prevId)
                     return false;
 
                 arrivalTime = flight.getArrivalTime();
+                prevId = flight.getFlightNumber();
             }
         } catch (Exception exception) {
             return false;
@@ -193,6 +218,7 @@ public class FlightController {
      * @return ResponseEntity<Object> This returns a response entity with a success message or an error message.
      */
     @DeleteMapping("/airline/{flightnumber}")
+    @Transactional(rollbackFor = {Exception.class})
     public ResponseEntity<Object> deleteFlight(@PathVariable("flightnumber") long flightNumber) {
         Optional<Flight> FlightData = flightRepository.findById(flightNumber);
 
@@ -202,6 +228,7 @@ public class FlightController {
                     flightRepository.deleteById(flightNumber);
                     return new ResponseEntity<Object>(new edu.sjsu.cmpe275.Helper.Success.Response("200", "Flight with number "+flightNumber+" is deleted successfully."), HttpStatus.OK);           
                 } catch (Exception e) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
