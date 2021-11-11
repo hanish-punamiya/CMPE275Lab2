@@ -9,6 +9,8 @@ import edu.sjsu.cmpe275.Service.PassengerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -52,12 +54,17 @@ public class PassengerController {
      * @return Updated passenger details
      */
     @PutMapping("/{id}")
+    @Transactional(rollbackFor = { Exception.class})
     public ResponseEntity<Object> updatePassenger(@PathVariable("id") long id, @RequestParam("firstname") String firstName,
                                                   @RequestParam("lastname") String lastName, @RequestParam("age") int age,
                                                   @RequestParam("gender") String gender, @RequestParam("phone") String phone) {
         try {
             Optional<Passenger> PassengerData = passengerRepository.findById(id);
+
             if (PassengerData.isPresent()) {
+                if(passengerRepository.findByPhone(phone)!=null && phone!=PassengerData.get().getPhone()){
+                    return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.BAD_REQUEST);
+                }
                 Passenger _passenger = PassengerData.get();
                 _passenger.setFirstName(firstName);
                 _passenger.setLastName(lastName);
@@ -66,11 +73,14 @@ public class PassengerController {
                 _passenger.setPhone(phone);
                 Passenger newPassenger = passengerRepository.save(_passenger);
                 newPassenger.setFlights(null);
+                if(true)
+                    throw new Exception("Hanish");
                 return new ResponseEntity<Object>(newPassenger, HttpStatus.OK);
             } else {
                 return new ResponseEntity<Object>(new Response("404", "Passenger not found"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new ResponseEntity<Object>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -111,7 +121,7 @@ public class PassengerController {
         try {
             Passenger passenger = passengerService.createPassengerService(firstName, lastName, age, gender, phone);
             if (passenger == null) {
-                return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(new Response("400", "Another passenger with the same number already exists"), HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(passenger, HttpStatus.OK);
         } catch (Exception exception) {
