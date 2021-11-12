@@ -236,7 +236,7 @@ public class ReservationController {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
-        return new ResponseEntity<Object>(new Response("404", "Unknown Error"), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<Object>(new Response("404", "Oops! The reservation could not be updated"), HttpStatus.NOT_FOUND);
 
 
     }
