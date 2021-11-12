@@ -103,6 +103,8 @@ public class ReservationController {
     public ResponseEntity<Object> makeReservation(@RequestParam("passengerId") Long passengerId, @RequestParam("flightNumbers") List<Long> flightNumbers) {
         try {
             List<Flight> flights = new ArrayList<Flight>();
+            if (flightNumbers.isEmpty())
+                return new ResponseEntity<Object>(new Response("400", "There needs to be at least one flight in the reservation"), HttpStatus.BAD_REQUEST);
             flightRepository.findAllById(flightNumbers).forEach(flights::add);
             if (!checkSeatsLeft(flights))
                 return new ResponseEntity<Object>(new Response("400", "No seats left on the flight"), HttpStatus.BAD_REQUEST);
@@ -241,7 +243,7 @@ public class ReservationController {
 
     /**
      * This method updates the reservation price, origin and destination.
-     *@param current Reservation object
+     *@param reservation current Reservation object
      */
 
     void updateReservation(Reservation reservation) {

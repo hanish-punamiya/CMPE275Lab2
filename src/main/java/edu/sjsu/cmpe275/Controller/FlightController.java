@@ -150,8 +150,8 @@ public class FlightController {
 
     /**  
      * This method is used to check for overlap between a passenger's reservations and a flight
-     * @param passenger is the passenger to be checked
-     * @param flight are the flights to check overlap with
+     * @param p is the passenger to be checked
+     * @param flightNumber are the flights to check overlap with
      * @return boolean true=there is no overlap  false=there is overlap
      */
     public boolean checkOverlapFlights(Passenger p, Date newDeparture, Date newArrival, long flightNumber) {
