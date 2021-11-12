@@ -237,7 +237,7 @@ public class FlightController {
                     return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
-                return new ResponseEntity<Object>(new Response("404", "This flight has a passenger on it."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<Object>(new Response("400", "This flight has a passenger on it."), HttpStatus.BAD_REQUEST);
             }
         } else {
             return new ResponseEntity<Object>(new Response("404", "This flight number doesn't exist."), HttpStatus.NOT_FOUND);
